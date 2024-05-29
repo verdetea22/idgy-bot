@@ -1,13 +1,15 @@
 const { Client, Intents } = require('discord.js');
-const mongoose = require('mongoose');
+const admin = require('firebase-admin');
 require('dotenv').config();
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.log(err));
+// Initialize Firebase Admin SDK
+admin.initializeApp({
+    credential: admin.credential.cert(require('./path/to/serviceAccountKey.json')) // Update with your service account key file path
+});
+
+const db = admin.firestore();
 
 client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
@@ -18,7 +20,7 @@ client.on('messageCreate', async message => {
 
     if (message.content.startsWith('!image')) {
         const query = message.content.slice(7).trim();
-        const imageUrl = await getImageFromDatabase(query);
+        const imageUrl = await getImageFromFirestore(query);
         if (imageUrl) {
             message.channel.send(imageUrl);
         } else {
@@ -27,17 +29,14 @@ client.on('messageCreate', async message => {
     }
 });
 
-async function getImageFromDatabase(query) {
-    // Define your image schema and model
-    const imageSchema = new mongoose.Schema({
-        tag: String,
-        url: String
-    });
-    const Image = mongoose.model('Image', imageSchema);
+async function getImageFromFirestore(query) {
+    const snapshot = await db.collection('images').where('tag', '==', query).get();
+    if (snapshot.empty) {
+        return null;
+    }
 
-    // Query the database
-    const result = await Image.findOne({ tag: query });
-    return result ? result.url : null;
+    const doc = snapshot.docs[0];
+    return doc.data().url;
 }
 
 client.login(process.env.DISCORD_TOKEN);
