@@ -1,0 +1,14 @@
+# Node modules
+node_modules
+
+# Environment variables
+.env
+
+# Firebase service account key
+path/to/serviceAccountKey.json
+
+# Optional: Logs, OS-specific files, and IDE-specific files
+*.log
+.DS_Store
+.idea/
+.vscode/

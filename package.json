@@ -1,0 +1,15 @@
+{
+  "name": "discord-bot",
+  "version": "1.0.0",
+  "description": "A Discord bot that fetches and sends images from Firebase Firestore and Storage.",
+  "main": "idgy.js",
+  "scripts": {
+    "start": "node idgy.js"
+  },
+  "dependencies": {
+    "discord.js": "^13.6.0",
+    "dotenv": "^10.0.0",
+    "firebase-admin": "^10.0.0",
+    "sharp": "^0.29.3"
+  }
+}
